@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <input type="text" name="ss" v-model="school.name">
+    <div>{{school.name}}</div>
+    <p>{{school.student}}</p>
+    {{school.age}}
+    <ul>
+      <li>1</li>
+      <li>2</li>
+    </ul>
+    <button v-on="change">更改</button>
+  </div>
+
+  <script src="./vue.js"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        school: {
+          name: "林威",
+          age: "23"
+        },
+        message: "<h4>在学习</h4>"
+      },
+      computed:{
+
+      },
+      methods:{
+        change(){
+          this.age = 24
+        }
+      }
+
+    })
+  </script>
+</body>
+
+</html>

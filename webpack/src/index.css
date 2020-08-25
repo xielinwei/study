@@ -1,0 +1,6 @@
+@import './1.css';
+body{
+  background: red;
+  transform: rotate(45deg);
+  /* background: url("./logo.jpg"); */
+}
