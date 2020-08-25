@@ -18,6 +18,7 @@ selenium-debug.log
 *.njsproj
 *.sln
 *.local
+*.mp4
 
 package-lock.json
 yarn.lock
