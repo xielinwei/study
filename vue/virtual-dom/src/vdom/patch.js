@@ -24,7 +24,7 @@ function createDomElementFromVnode(vnode) {
     vnode.domElement = document.createElement(type);
     updateProperties(vnode); 
     children.forEach(childVnode => render(childVnode, vnode.domElement));
-    console.log(vnode.domElement)
+    // console.log(vnode.domElement)
   } else {
     vnode.domElement = document.createTextNode(text)
   }
@@ -59,7 +59,6 @@ function updateProperties(newVnode, oldProps = {}) {
         domElement.style[s] = styleObj[s]
       }
     } else {
-      console.log(newPropName)
       domElement[newPropName] = newProps[newPropName]
       domElement.setAttribute(newPropName, newProps[newPropName])
     }
