@@ -73,6 +73,7 @@ export function patch(oldVnode, newVnode) {
   }
   // 类型相同且为文本标签
   if (oldVnode.text) {
+    if (oldVnode.text === newVnode.text) return;
     return oldVnode.domElement.textContent = newVnode.text
   }
   // 类型一样  并且为元素标签  
@@ -88,13 +89,101 @@ export function patch(oldVnode, newVnode) {
   } else if (oldChildren.length) {
     domElement.innerHTML = "";
     // 老的没儿子，新的有
-  } else if (newChildren.length){
-    newChildren.forEach((item)=>{
+  } else if (newChildren.length) {
+    newChildren.forEach((item) => {
       domElement.appendChild(createDomElementFromVnode(item))
     })
   }
 }
-// diff
-function updateChildren(parent, oldChildren, newChildren){
+// 将oldChildren生成一个键值对的对象，便于新节点比对搜索查找
+function createMapByKeyToIndex(oldChildren) {
+  let map = {};
+  for (let i = 0; i < oldChildren.length; i++) {
+    let current = oldChildren[i];
+    if (current.key) {
+      map[current.key] = i;
+    }
+  }
+  return map
+}
+// 判断新老虚拟节点是否相同
+function isSameVnode(oldVnode, newVnode) {
+  return oldVnode.key === newVnode.key && oldVnode.type === newVnode.type
+  // return oldVnode.type === newVnode.type
+}
+// diff  列表对比
+function updateChildren(parent, oldChildren, newChildren) {
+  let oldStartIndex = 0;
+  let oldEndIndex = oldChildren.length - 1;
+  let oldStartVnode = oldChildren[0];
+  let oldEndVnode = oldChildren[oldEndIndex];
 
+  let oldMapChildren = createMapByKeyToIndex(oldChildren)
+
+  let newStartIndex = 0;
+  let newEndIndex = newChildren.length - 1;
+  let newStartVnode = newChildren[0];
+  let newEndVnode = newChildren[newEndIndex];
+  while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    // type key
+    if (!oldStartVnode) {
+      oldStartVnode = oldChildren[++oldStartIndex]
+    } else if (!oldEndVnode) {
+      oldEndVnode = oldChildren[--oldEndIndex];
+
+    } else if (isSameVnode(oldStartVnode, newStartVnode)) {
+      // 先比较头是否相等
+      patch(oldStartVnode, newStartVnode);
+      oldStartVnode = oldChildren[++oldStartIndex];
+      newStartVnode = newChildren[++newStartIndex];
+
+    } else if (isSameVnode(oldEndVnode, newEndVnode)) {
+      // 头和头不相等，再比较尾巴
+      patch(oldEndVnode, newEndVnode);
+      oldEndVnode = oldChildren[--oldEndIndex];
+      newEndVnode = newChildren[--newEndIndex];
+
+    } else if (isSameVnode(oldStartVnode, newEndVnode)) {
+      // 头对尾
+      patch(oldStartVnode, newEndVnode);
+      parent.insertBefore(oldStartVnode.domElement, oldEndVnode.domElement.nextSibling);
+      oldStartVnode = oldChildren[++oldStartIndex];
+      newEndVnode = newChildren[--newEndIndex];
+
+    } else if (isSameVnode(oldEndVnode, newStartVnode)) {
+      // 尾对头
+      patch(oldEndVnode, newStartVnode);
+      parent.insertBefore(oldEndVnode.domElement, oldStartVnode.domElement);
+      oldEndVnode = oldChildren[--oldEndIndex];
+      newStartVnode = newChildren[++newStartIndex];
+    } else {
+      // 暴力比对
+      // 拿到新的节点 去老的中查找  如果存在就复用  不存在就重复创建插入
+      let index = oldMapChildren[newStartVnode.key];
+      if (index == null) {
+        parent.insertBefore(createDomElementFromVnode(newStartVnode), oldStartVnode.domElement)
+      } else {
+        let toMoveNode = oldChildren[index]
+        patch(toMoveNode, newStartVnode)
+        parent.insertBefore(toMoveNode.domElement, oldStartVnode.domElement)
+        oldChildren[index] = undefined;
+      }
+      newStartVnode = newChildren[++newStartIndex];
+    }
+  }
+  // 只有小于或者等于  说明才有剩余的节点
+  if (newStartIndex <= newEndIndex) {
+    for (let i = newStartIndex; i <= newEndIndex; i++) {
+      let beforeElement = newChildren[newEndIndex + 1] == null ? null : newChildren[newEndIndex + 1].domElement;
+      parent.insertBefore(createDomElementFromVnode(newChildren[i]), beforeElement)
+    }
+  }
+  // 多余的老节点
+  if (oldStartIndex <= oldEndIndex) {
+    for (let i = oldStartIndex; i <= oldEndIndex; i++) {
+      if (oldChildren[i]) {
+        parent.removeChild(oldChildren[i].domElement)
+      }
+    }
+  }
 }
