@@ -3,7 +3,7 @@ export default class VueRouter{
   constructor(options){
 
   }
-  init(app){
+  init(app){ //app指代的是根实例
 
   }
 }
