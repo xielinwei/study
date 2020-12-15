@@ -1,10 +1,11 @@
 import install from "./install"
-export default class VueRouter{
-  constructor(options){
+export default class VueRouter {
+  constructor(options) {
+    console.log(options)
 
   }
-  init(app){ //app指代的是根实例
-
+  init(app) {
+    console.log(app)
   }
 }
 VueRouter.install = install;

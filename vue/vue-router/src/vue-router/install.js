@@ -7,7 +7,6 @@ export default function install(Vue) {
   // 3.对于 method中的同名方法，组件内的同名方法覆盖mixin中的方法
   Vue.mixin({
     beforeCreate() {
-      console.log(this.$options.name)
       if (this.$options.router) { //根实例 
         this._routerRoot = this;
         this._router = this.$options.router;
