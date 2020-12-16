@@ -1,11 +1,10 @@
 import install from "./install"
+import createMatcher from "./create-matcher"
 export default class VueRouter {
   constructor(options) {
-    console.log(options)
-
+    this.matcher = createMatcher(options.routes || [])
   }
   init(app) {
-    console.log(app)
   }
 }
 VueRouter.install = install;
